@@ -1,0 +1,16 @@
+[Unit]
+Description=MediaMTX daemon
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/lib/mediamtx/mediamtx
+WorkingDirectory=/usr/local/lib/mediamtx
+TimeoutSec=60
+StandardOutput=append:/var/log/mediamtx.log
+StandardError=append:/var/log/mediamtx-error.log
+SyslogIdentifier=mediamtx
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

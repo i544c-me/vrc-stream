@@ -1,0 +1,47 @@
+---
+- name: Provision Image
+  hosts: default
+  become: true
+
+  vars:
+    mediamtx_version: v1.2.0
+
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: yes
+        state: present
+    
+    - name: Download MediaMTX
+      get_url:
+        url: https://github.com/bluenviron/mediamtx/releases/download/{{ mediamtx_version }}/mediamtx_{{ mediamtx_version }}_linux_arm64v8.tar.gz
+        dest: /tmp/mediamtx.tar.gz
+        mode: "0777"
+
+    - name: Create MediaMTX dir
+      file:
+        path: /usr/local/lib/mediamtx
+        state: directory
+        mode: '0755'
+
+    - name: Setup MediaMTX
+      unarchive:
+        remote_src: yes
+        src: /tmp/mediamtx.tar.gz
+        dest: /usr/local/lib/mediamtx
+
+    - name: Copy MediaMTX config
+      copy:
+        src: ./files/mediamtx.yml
+        dest: /usr/local/lib/mediamtx/mediamtx.yml
+
+    - name: Install MediaMTX service
+      copy:
+        src: ./files/mediamtx.service
+        dest: /etc/systemd/system/mediamtx.service
+
+    - name: Enable MediaMTX service
+      service:
+        name: mediamtx
+        daemon_reload: true
+        enabled: true
